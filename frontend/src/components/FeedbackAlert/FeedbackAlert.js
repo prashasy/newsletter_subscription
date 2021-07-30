@@ -11,8 +11,8 @@ const getMetaFromType = (type) => {
     }
 }
 
-const FeedbackAlert = ({ type, message }) => {
-    const [showAlert, setShowAlert] = React.useState(true);
+const FeedbackAlert = ({ showAlert, setShowAlert, type, message }) => {
+    // const [showAlert, setShowAlert] = React.useState(true);
     const { color, heading } = getMetaFromType(type);
     console.log(color, heading);
     return (
@@ -20,7 +20,7 @@ const FeedbackAlert = ({ type, message }) => {
             {showAlert ? (
                 <div
                     className={
-                        "text-black px-6 py-4 border-0 rounded relative mb-4 bg-" +
+                        "text-black px-6 py-3 border-0 rounded relative mb-4 bg-" +
                         color +
                         "-500"
                     }

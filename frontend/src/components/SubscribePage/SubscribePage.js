@@ -10,8 +10,8 @@ const SubscribePage = () => {
     const [email, setEmail] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [feedbackAlert, setFeedbackAlert] = useState({ isVisible: false, type: null, message: null })
-    const isDisabled = !username || !email;
-
+    const [isLoading, setisLoading] = useState(false);
+    const closeAlert = (isOpen) => { setFeedbackAlert({ ...feedbackAlert, isVisible: isOpen }) }
     const isValidUserName = (uname) => {
         if (uname.match(/^[a-z]+$/i)) {
             return true;
@@ -29,34 +29,40 @@ const SubscribePage = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        setErrorMessage('');
+        setisLoading(true);
         if (!isValidUserName(username) || !isValidEmail(email)) {
+            setisLoading(false);
             return;
         }
 
-        axios.post('/api/subscriptions/', { name: username, email })
-            .then((res) => {
-                console.log("Res", res)
-                setFeedbackAlert({ ...feedbackAlert, isVisible: true, type: 'success', message: 'You have successfully subscribed to our newsletter!' })
-            }).catch((error) => {
-                if (error.response) {
-                    let { data } = error.response;
-                    let message = '';
-                    if (data.name)
-                        message = data.name[0];
-                    else if (data.email)
-                        message = data.email[0];
+        setTimeout(() => {
+            axios.post('/api/subscriptions/', { name: username, email })
+                .then((res) => {
+                    console.log("Res", res)
+                    setFeedbackAlert({ isVisible: true, type: 'success', message: 'You have successfully subscribed to our newsletter!' })
+                }).catch((error) => {
+                    if (error.response) {
+                        let { data } = error.response;
+                        let message = '';
+                        console.log(data.name, data.email)
+                        if (data.name)
+                            message = data.name[0];
+                        else if (data.email)
+                            message = data.email[0];
 
-                    setFeedbackAlert({ ...feedbackAlert, isVisible: true, type: 'error', message })
-                    return;
-                }
-                setFeedbackAlert({ ...feedbackAlert, isVisible: true, type: 'error', message: 'Something went wrong.Please try again later...' })
-            });
+                        setFeedbackAlert({ isVisible: true, type: 'error', message })
+                        return;
+                    }
+                    setFeedbackAlert({ ...feedbackAlert, isVisible: true, type: 'error', message: 'Something went wrong.Please try again later...' })
+                }).finally(() => setisLoading(false));
+        }, 3000);
     };
     return (
         <>
             {feedbackAlert.isVisible
                 ? <div className="alert-container">
-                    <FeedbackAlert type={feedbackAlert.type} message={feedbackAlert.message} />
+                    <FeedbackAlert showAlert={feedbackAlert.isVisible} setShowAlert={closeAlert} type={feedbackAlert.type} message={feedbackAlert.message} />
                 </div>
                 : null}
             <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -106,10 +112,10 @@ const SubscribePage = () => {
                             <button
                                 type="submit"
                                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                disabled={isDisabled}
+                                disabled={isLoading}
                                 onClick={handleSubmit}
                             >
-                                Subscribe
+                                {isLoading ? <img src='/static/frontend/images/loader.gif' alt='Loading...' /> : <span> Subscribe</span>}
                             </button>
                         </div>
                     </form>

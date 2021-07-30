@@ -12,3 +12,6 @@ font-size: small;
     width: 75%;
     z-index: 1;
 }
+button[type='submit']:disabled{
+    background-color: azure;
+}
