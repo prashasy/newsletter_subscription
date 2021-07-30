@@ -1,6 +1,9 @@
 var webpack = require("webpack");
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+
     module: {
         rules: [
             {
@@ -9,15 +12,24 @@ module.exports = {
                 use: {
                     loader: "babel-loader"
                 }
-            }
+            },
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader', 'postcss-loader'],
+            },
         ]
     },
-    devServer: {
-        inline: true,
-        port: 3000,
-        hot: true
+    output: {
+        path: path.join(__dirname, '/static/frontend/'),
+        filename: 'main.js',
+        publicPath: "/templates/frontend/"
     },
+    // devServer: {
+    //     inline: true,
+    //     port: 3000,
+    //     hot: true
+    // },
     plugins: [
-        new webpack.HotModuleReplacementPlugin(),
+        new HtmlWebpackPlugin(),
     ],
 };
